@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내신 분석</title>
+<style>
+:root{
+  --bg:#f4f6f8;
+  --card:#fff;
+  --line:#e5e7eb;
+  --text:#17202a;
+  --muted:#697586;
+  --navy:#172b4d;
+  --blue:#315b8c;
+  --blue-soft:#eef4fa;
+  --green:#31745b;
+  --green-soft:#edf7f2;
+  --red:#a64b4b;
+  --red-soft:#fbefef;
+  --gold:#8a6a2f;
+  --gold-soft:#faf5e8;
+  --shadow:0 8px 30px rgba(20,32,48,.05);
+  --radius:16px;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",
+  "Segoe UI",sans-serif;
+  line-height:1.5;
+}
+
+button,input,select{font:inherit}
+
+button{cursor:pointer}
+
+.app{
+  width:min(1180px,calc(100% - 32px));
+  margin:0 auto;
+  padding:36px 0 70px;
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:20px;
+  margin-bottom:28px;
+}
+
+.header h1{
+  margin:0;
+  color:var(--navy);
+  font-size:30px;
+  letter-spacing:-1.2px;
+}
+
+.header p{
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.header-mark{
+  color:var(--muted);
+  font-size:12px;
+  border:1px solid var(--line);
+  padding:7px 11px;
+  border-radius:999px;
+  background:#fff;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:24px;
+  margin-bottom:18px;
+}
+
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:18px;
+}
+
+.section-head h2{
+  margin:0;
+  font-size:18px;
+  letter-spacing:-.5px;
+}
+
+.section-head p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.student-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.field label{
+  display:block;
+  margin-bottom:6px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+input,select{
+  width:100%;
+  height:42px;
+  border:1px solid #d8dde5;
+  border-radius:9px;
+  background:#fff;
+  color:var(--text);
+  padding:0 12px;
+  outline:none;
+}
+
+input:focus,select:focus{
+  border-color:#7896b5;
+  box-shadow:0 0 0 3px rgba(49,91,140,.08);
+}
+
+.semester{
+  border:1px solid var(--line);
+  border-radius:13px;
+  overflow:hidden;
+  margin-bottom:14px;
+}
+
+.semester-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  padding:15px 17px;
+  background:#fafbfc;
+  border-bottom:1px solid var(--line);
+}
+
+.semester-title{
+  font-weight:700;
+  font-size:15px;
+  color:var(--navy);
+}
+
+.semester-sub{
+  color:var(--muted);
+  font-size:11px;
+  margin-top:2px;
+}
+
+.semester-average{
+  color:var(--blue);
+  font-size:13px;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+.subjects{
+  padding:12px;
+}
+
+.subject-empty{
+  padding:18px 10px;
+  text-align:center;
+  color:#98a2b3;
+  font-size:12px;
+}
+
+.subject{
+  display:grid;
+  grid-template-columns:minmax(220px,2fr) 90px 110px 110px 62px;
+  gap:8px;
+  align-items:end;
+  padding:9px 0;
+  border-bottom:1px solid #f0f2f4;
+}
+
+.subject:last-child{
+  border-bottom:0;
+}
+
+.subject-label{
+  display:block;
+  font-size:10px;
+  color:#98a2b3;
+  margin-bottom:4px;
+}
+
+.category{
+  display:block;
+  color:#8994a3;
+  font-size:10px;
+  margin-top:4px;
+}
+
+.delete-btn{
+  height:42px;
+  border:0;
+  border-radius:8px;
+  background:#f5f6f8;
+  color:#7b8490;
+  font-size:11px;
+}
+
+.delete-btn:hover{
+  background:var(--red-soft);
+  color:var(--red);
+}
+
+.add-btn{
+  width:100%;
+  height:40px;
+  border:1px dashed #cbd2db;
+  border-radius:9px;
+  background:#fff;
+  color:var(--blue);
+  font-size:12px;
+  font-weight:700;
+  margin-top:10px;
+}
+
+.add-btn:hover{
+  background:var(--blue-soft);
+  border-color:#9db3ca;
+}
+
+.summary-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.summary{
+  padding:17px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fbfcfd;
+}
+
+.summary-label{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.summary-value{
+  margin-top:4px;
+  color:var(--navy);
+  font-size:27px;
+  font-weight:800;
+  letter-spacing:-1px;
+}
+
+.summary-unit{
+  color:#98a2b3;
+  font-size:10px;
+}
+
+.trend-box{
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:17px;
+  margin-top:12px;
+}
+
+.trend-title{
+  font-size:13px;
+  font-weight:700;
+  color:var(--navy);
+}
+
+.trend-line{
+  margin-top:12px;
+  height:8px;
+  border-radius:99px;
+  background:#edf0f3;
+  overflow:hidden;
+}
+
+.trend-fill{
+  height:100%;
+  border-radius:99px;
+  background:var(--blue);
+  transition:width .3s ease;
+}
+
+.trend-meta{
+  display:flex;
+  justify-content:space-between;
+  margin-top:7px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.analysis-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.analysis-card{
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:17px;
+}
+
+.analysis-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+
+.analysis-name{
+  font-weight:750;
+  color:var(--navy);
+  font-size:14px;
+}
+
+.analysis-category{
+  color:var(--muted);
+  font-size:10px;
+  margin-top:2px;
+}
+
+.badge{
+  border-radius:999px;
+  padding:4px 8px;
+  font-size:10px;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+.badge-up{
+  background:var(--green-soft);
+  color:var(--green);
+}
+
+.badge-down{
+  background:var(--red-soft);
+  color:var(--red);
+}
+
+.badge-stable{
+  background:var(--blue-soft);
+  color:var(--blue);
+}
+
+.badge-warn{
+  background:var(--gold-soft);
+  color:var(--gold);
+}
+
+.history{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin:14px 0;
+  flex-wrap:wrap;
+}
+
+.history-item{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.history-grade{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f3f5f7;
+  font-weight:800;
+  font-size:12px;
+  color:var(--navy);
+}
+
+.history-arrow{
+  color:#b0b7c1;
+  font-size:12px;
+}
+
+.history-term{
+  font-size:9px;
+  color:#98a2b3;
+  text-align:center;
+  margin-top:3px;
+}
+
+.prediction-box{
+  background:#f8fafc;
+  border-radius:9px;
+  padding:11px;
+  font-size:12px;
+  color:#5d6876;
+}
+
+.prediction-box strong{
+  color:var(--navy);
+}
+
+.impact{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding-top:10px;
+  margin-top:10px;
+  border-top:1px solid #edf0f3;
+  font-size:11px;
+  color:var(--muted);
+}
+
+.impact strong{
+  color:var(--green);
+}
+
+.feedback{
+  background:#f8fafc;
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:20px;
+}
+
+.feedback-title{
+  color:var(--navy);
+  font-weight:800;
+  font-size:15px;
+  margin-bottom:12px;
+}
+
+.feedback-main{
+  font-size:14px;
+  color:#45515f;
+  line-height:1.75;
+}
+
+.feedback-highlight{
+  color:var(--navy);
+  font-weight:800;
+}
+
+.scenario-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:14px;
+}
+
+.scenario{
+  padding:14px;
+  border-radius:10px;
+  background:#fff;
+  border:1px solid var(--line);
+}
+
+.scenario-title{
+  font-size:10px;
+  color:var(--muted);
+}
+
+.scenario-value{
+  font-size:20px;
+  font-weight:800;
+  color:var(--navy);
+  margin-top:2px;
+}
+
+.scenario-change{
+  color:var(--green);
+  font-size:10px;
+}
+
+.empty{
+  text-align:center;
+  padding:28px 10px;
+  color:#98a2b3;
+  font-size:12px;
+}
+
+.notice{
+  color:#7a8491;
+  font-size:10px;
+  line-height:1.7;
+  padding:5px 3px;
+}
+
+@media(max-width:850px){
+  .summary-grid{grid-template-columns:repeat(2,1fr)}
+  .analysis-grid{grid-template-columns:1fr}
+  .subject{
+    grid-template-columns:1fr 90px 110px;
+  }
+  .subject .subject-main{
+    grid-column:1/-1;
+  }
+  .subject .delete-wrap{
+    grid-column:3;
+  }
+}
+
+@media(max-width:600px){
+  .app{width:min(100% - 20px,1180px);padding-top:20px}
+  .header{display:block}
+  .header-mark{display:inline-block;margin-top:12px}
+  .header h1{font-size:25px}
+  .student-grid{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:1fr 1fr}
+  .scenario-grid{grid-template-columns:1fr}
+  .card{padding:17px}
+}
+
+@media(max-width:430px){
+  .summary-value{font-size:23px}
+  .subject{
+    grid-template-columns:1fr 1fr;
+  }
+  .subject .subject-main{
+    grid-column:1/-1;
+  }
+  .subject .delete-wrap{
+    grid-column:auto;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header class="header">
+    <div>
+      <h1>내신 분석</h1>
+      <p>학기별 성적을 입력하면 현재 내신과 성적 흐름을 실시간으로 분석합니다.</p>
+    </div>
+    <div class="header-mark">2022 개정 교육과정 · 5등급제</div>
+  </header>
+
+  <section class="card">
+    <div class="section-head">
+      <div>
+        <h2>학생 정보</h2>
+        <p>목표 등급을 입력하면 현재 성적과 비교합니다.</p>
+      </div>
+    </div>
+
+    <div class="student-grid">
+      <div class="field">
+        <label>이름</label>
+        <input id="studentName" type="text" placeholder="이름">
+      </div>
+
+      <div class="field">
+        <label>목표 종합 내신</label>
+        <input id="targetGrade" type="number" min="1" max="5" step="0.01" placeholder="예: 1.50">
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-head">
+      <div>
+        <h2>성적 입력</h2>
+        <p>각 학기의 과목 추가 버튼으로 해당 학기에 바로 과목을 입력하세요.</p>
+      </div>
+    </div>
+
+    <div id="semesterContainer"></div>
+  </section>
+
+  <section class="card">
+    <div class="section-head">
+      <div>
+        <h2>종합 내신</h2>
+        <p>성적을 입력하는 즉시 학점 가중평균으로 계산됩니다.</p>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary">
+        <div class="summary-label">고1</div>
+        <div class="summary-value" id="grade1Average">-</div>
+        <div class="summary-unit">등급</div>
+      </div>
+
+      <div class="summary">
+        <div class="summary-label">고2</div>
+        <div class="summary-value" id="grade2Average">-</div>
+        <div class="summary-unit">등급</div>
+      </div>
+
+      <div class="summary">
+        <div class="summary-label">고3</div>
+        <div class="summary-value" id="grade3Average">-</div>
+        <div class="summary-unit">등급</div>
+      </div>
+
+      <div class="summary">
+        <div class="summary-label">전체 종합</div>
+        <div class="summary-value" id="overallAverage">-</div>
+        <div class="summary-unit">등급</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-head">
+      <div>
+        <h2>성적 흐름</h2>
+        <p>학기별 평균이 어떻게 변하고 있는지 확인합니다.</p>
+      </div>
+    </div>
+
+    <div id="overallTrend">
+      <div class="empty">성적을 입력하면 실시간으로 표시됩니다.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-head">
+      <div>
+        <h2>계열별 성적 예측</h2>
+        <p>같은 계열의 이전 과목 성적을 이용해 다음 과목의 예상 범위를 계산합니다.</p>
+      </div>
+    </div>
+
+    <div id="subjectAnalysis">
+      <div class="empty">성적을 입력하면 과목별 분석이 표시됩니다.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-head">
+      <div>
+        <h2>현재 성적 피드백</h2>
+        <p>막연한 조언 대신 현재 가장 낮은 성적과 변화량을 중심으로 계산합니다.</p>
+      </div>
+    </div>
+
+    <div id="feedback">
+      <div class="empty">성적을 입력하면 피드백이 표시됩니다.</div>
+    </div>
+  </section>
+
+  <div class="notice">
+    ※ 예측 등급은 입력된 과거 성적의 추세를 이용한 참고용 계산입니다.
+    실제 학교의 평가 결과를 보장하지 않습니다.<br>
+    ※ 실제 개설 과목과 학점은 학교별 교육과정에 따라 달라질 수 있습니다.
+  </div>
+
+</div>
+
+<script>
+const CURRICULUM = {
+  1: {
+    "국어 · 공통": [
+      "공통국어1",
+      "공통국어2"
+    ],
+    "수학 · 공통": [
+      "공통수학1",
+      "공통수학2"
+    ],
+    "영어 · 공통": [
+      "공통영어1",
+      "공통영어2"
+    ],
+    "사회 · 공통": [
+      "통합사회1",
+      "통합사회2",
+      "한국사1",
+      "한국사2"
+    ],
+    "과학 · 공통": [
+      "통합과학1",
+      "통합과학2",
+      "과학탐구실험1",
+      "과학탐구실험2"
+    ]
+  },
+
+  2: {
+    "국어 · 일반선택": [
+      "화법과 언어",
+      "독서와 작문",
+      "문학"
+    ],
+    "수학 · 일반선택": [
+      "대수",
+      "미적분Ⅰ",
+      "확률과 통계"
+    ],
+    "수학 · 진로선택": [
+      "미적분Ⅱ",
+      "기하"
+    ],
+    "수학 · 융합선택": [
+      "수학과 문화",
+      "실용 통계",
+      "수학과제 탐구"
+    ],
+    "영어 · 일반선택": [
+      "영어Ⅰ",
+      "영어Ⅱ",
+      "영어 독해와 작문"
+    ],
+    "사회": [
+      "세계시민과 지리",
+      "세계사",
+      "사회와 문화",
+      "현대사회와 윤리",
+      "정치",
+      "법과 사회",
+      "경제",
+      "윤리와 사상"
+    ],
+    "과학": [
+      "물리학",
+      "화학",
+      "생명과학",
+      "지구과학"
+    ],
+    "정보": [
+      "정보",
+      "인공지능 기초"
+    ]
+  },
+
+  3: {
+    "국어 · 일반선택": [
+      "화법과 언어",
+      "독서와 작문",
+      "문학"
+    ],
+    "수학 · 일반선택": [
+      "대수",
+      "미적분Ⅰ",
+      "확률과 통계"
+    ],
+    "수학 · 진로선택": [
+      "미적분Ⅱ",
+      "기하"
+    ],
+    "수학 · 융합선택": [
+      "수학과 문화",
+      "실용 통계",
+      "수학과제 탐구"
+    ],
+    "영어 · 일반선택": [
+      "영어Ⅰ",
+      "영어Ⅱ",
+      "영어 독해와 작문"
+    ],
+    "사회": [
+      "세계시민과 지리",
+      "세계사",
+      "사회와 문화",
+      "현대사회와 윤리",
+      "정치",
+      "법과 사회",
+      "경제",
+      "윤리와 사상"
+    ],
+    "사회 · 탐구": [
+      "한국지리 탐구",
+      "도시의 미래 탐구",
+      "사회문제 탐구",
+      "금융과 경제생활"
+    ],
+    "과학": [
+      "물리학",
+      "화학",
+      "생명과학",
+      "지구과학"
+    ],
+    "과학 · 진로선택": [
+      "역학과 에너지",
+      "전자기와 양자",
+      "물질과 에너지",
+      "화학 반응의 세계",
+      "세포와 물질대사",
+      "생물의 유전",
+      "지구시스템과학",
+      "행성우주과학"
+    ],
+    "정보": [
+      "정보",
+      "인공지능 기초"
+    ]
+  }
+};
+
+const SEMESTERS = [
+  {id:"g1s1", grade:1, title:"고등학교 1학년 · 1학기"},
+  {id:"g1s2", grade:1, title:"고등학교 1학년 · 2학기"},
+  {id:"g2s1", grade:2, title:"고등학교 2학년 · 1학기"},
+  {id:"g2s2", grade:2, title:"고등학교 2학년 · 2학기"},
+  {id:"g3s1", grade:3, title:"고등학교 3학년 · 1학기"},
+  {id:"g3s2", grade:3, title:"고등학교 3학년 · 2학기"}
+];
+
+const data = {
+  g1s1:[],
+  g1s2:[],
+  g2s1:[],
+  g2s2:[],
+  g3s1:[],
+  g3s2:[]
+};
+
+const el = id => document.getElementById(id);
+
+function esc(value){
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function getCategory(grade,name){
+  if(!name) return "";
+
+  for(const category of Object.keys(CURRICULUM[grade] || {})){
+    if(CURRICULUM[grade][category].includes(name)){
+      return category;
+    }
+  }
+
+  return "";
+}
+
+function getOptions(grade,selected=""){
+  let html = `<option value="">과목 선택</option>`;
+
+  for(const category of Object.keys(CURRICULUM[grade] || {})){
+    html += `<optgroup label="${esc(category)}">`;
+
+    for(const subject of CURRICULUM[grade][category]){
+      html += `
+        <option value="${esc(subject)}"
+          ${subject === selected ? "selected" : ""}>
+          ${esc(subject)}
+        </option>
+      `;
+    }
+
+    html += `</optgroup>`;
+  }
+
+  return html;
+}
+
+function render(){
+  const container = el("semesterContainer");
+
+  container.innerHTML = SEMESTERS.map(semester => {
+    const list = data[semester.id];
+
+    const average = semesterAverage(semester.id);
+
+    return `
+      <div class="semester">
+        <div class="semester-header">
+          <div>
+            <div class="semester-title">${semester.title}</div>
+            <div class="semester-sub">
+              ${semester.grade === 1
+                ? "공통과목 중심"
+                : "선택과목 입력 가능"}
+            </div>
+          </div>
+
+          <div class="semester-average">
+            ${average === null ? "평균 -" : `평균 ${average.toFixed(2)}`}
+          </div>
+        </div>
+
+        <div class="subjects">
+          ${
+            list.length === 0
+              ? `<div class="subject-empty">아직 입력한 과목이 없습니다.</div>`
+              : list.map((subject,index) => subjectHTML(
+                  semester,
+                  subject,
+                  index
+                )).join("")
+          }
+
+          <button
+            class="add-btn"
+            onclick="addSubject('${semester.id}')">
+            + 이 학기에 과목 추가
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function subjectHTML(semester,subject,index){
+  const category = getCategory(
+    semester.grade,
+    subject.name
+  );
+
+  return `
+    <div class="subject">
+
+      <div class="subject-main">
+        <label class="subject-label">과목</label>
+
+        <select
+          onchange="updateSubject(
+            '${semester.id}',
+            ${index},
+            'name',
+            this.value
+          )">
+          ${getOptions(semester.grade,subject.name)}
+        </select>
+
+        ${
+          category
+            ? `<span class="category">${esc(category)}</span>`
+            : ""
+        }
+      </div>
+
+      <div>
+        <label class="subject-label">학점</label>
+
+        <input
+          type="number"
+          min="1"
+          max="10"
+          step="1"
+          value="${subject.credit || 3}"
+          onchange="updateSubject(
+            '${semester.id}',
+            ${index},
+            'credit',
+            this.value
+          )">
+      </div>
+
+      <div>
+        <label class="subject-label">등급</label>
+
+        <select
+          onchange="updateSubject(
+            '${semester.id}',
+            ${index},
+            'rank',
+            this.value
+          )">
+
+          <option value="">선택</option>
+
+          ${[1,2,3,4,5].map(rank => `
+            <option
+              value="${rank}"
+              ${Number(subject.rank) === rank ? "selected" : ""}>
+              ${rank}등급
+            </option>
+          `).join("")}
+
+        </select>
+      </div>
+
+      <div>
+        <label class="subject-label">유형</label>
+
+        <input
+          value="${esc(category)}"
+          readonly
+          placeholder="-">
+      </div>
+
+      <div class="delete-wrap">
+        <label class="subject-label">&nbsp;</label>
+
+        <button
+          class="delete-btn"
+          onclick="removeSubject(
+            '${semester.id}',
+            ${index}
+          )">
+          삭제
+        </button>
+      </div>
+
+    </div>
+  `;
+}
+
+function addSubject(semesterId){
+  data[semesterId].push({
+    name:"",
+    credit:3,
+    rank:""
+  });
+
+  render();
+  updateAll();
+}
+
+function removeSubject(semesterId,index){
+  data[semesterId].splice(index,1);
+  render();
+  updateAll();
+}
+
+function updateSubject(semesterId,index,key,value){
+  const subject = data[semesterId][index];
+
+  if(key === "credit"){
+    subject.credit = Number(value) || 0;
+  }else if(key === "rank"){
+    subject.rank = Number(value) || "";
+  }else{
+    subject[key] = value;
+  }
+
+  render();
+  updateAll();
+}
+
+function validSubject(subject){
+  return (
+    subject.name &&
+    Number(subject.credit) > 0 &&
+    Number(subject.rank) >= 1 &&
+    Number(subject.rank) <= 5
+  );
+}
+
+function semesterAverage(id){
+  const list = data[id];
+
+  let credits = 0;
+  let score = 0;
+
+  list.forEach(subject => {
+    if(!validSubject(subject)) return;
+
+    credits += Number(subject.credit);
+    score +=
+      Number(subject.credit) *
+      Number(subject.rank);
+  });
+
+  if(!credits) return null;
+
+  return score / credits;
+}
+
+function gradeAverage(grade){
+  let credits = 0;
+  let score = 0;
+
+  SEMESTERS
+    .filter(s => s.grade === grade)
+    .forEach(s => {
+      data[s.id].forEach(subject => {
+        if(!validSubject(subject)) return;
+
+        credits += Number(subject.credit);
+        score +=
+          Number(subject.credit) *
+          Number(subject.rank);
+      });
+    });
+
+  if(!credits) return null;
+
+  return score / credits;
+}
+
+function overallAverage(){
+  let credits = 0;
+  let score = 0;
+
+  SEMESTERS.forEach(s => {
+    data[s.id].forEach(subject => {
+      if(!validSubject(subject)) return;
+
+      credits += Number(subject.credit);
+      score +=
+        Number(subject.credit) *
+        Number(subject.rank);
+    });
+  });
+
+  if(!credits) return null;
+
+  return {
+    average:score / credits,
+    credits
+  };
+}
+
+function getSemesterAverages(){
+  return SEMESTERS
+    .map(s => ({
+      ...s,
+      average:semesterAverage(s.id)
+    }))
+    .filter(s => s.average !== null);
+}
+
+function getAllSubjects(){
+  const result = [];
+
+  SEMESTERS.forEach(semester => {
+    data[semester.id].forEach(subject => {
+      if(!validSubject(subject)) return;
+
+      result.push({
+        ...subject,
+        grade:semester.grade,
+        semesterId:semester.id,
+        semester:semester.title,
+        category:getCategory(
+          semester.grade,
+          subject.name
+        )
+      });
+    });
+  });
+
+  return result;
+}
+
+/*
+  같은 과목만 묶는 것이 아니라
+  과목 계열을 연결하기 위한 정의.
+*/
+const SUBJECT_FAMILY = {
+
+  "국어":[
+    "공통국어1",
+    "공통국어2",
+    "화법과 언어",
+    "독서와 작문",
+    "문학"
+  ],
+
+  "수학":[
+    "공통수학1",
+    "공통수학2",
+    "대수",
+    "미적분Ⅰ",
+    "확률과 통계",
+    "미적분Ⅱ",
+    "기하",
+    "수학과 문화",
+    "실용 통계",
+    "수학과제 탐구"
+  ],
+
+  "영어":[
+    "공통영어1",
+    "공통영어2",
+    "영어Ⅰ",
+    "영어Ⅱ",
+    "영어 독해와 작문"
+  ],
+
+  "사회":[
+    "통합사회1",
+    "통합사회2",
+    "세계시민과 지리",
+    "세계사",
+    "사회와 문화",
+    "현대사회와 윤리",
+    "정치",
+    "법과 사회",
+    "경제",
+    "윤리와 사상",
+    "한국지리 탐구",
+    "도시의 미래 탐구",
+    "사회문제 탐구",
+    "금융과 경제생활"
+  ],
+
+  "과학":[
+    "통합과학1",
+    "통합과학2",
+    "과학탐구실험1",
+    "과학탐구실험2",
+    "물리학",
+    "화학",
+    "생명과학",
+    "지구과학",
+    "역학과 에너지",
+    "전자기와 양자",
+    "물질과 에너지",
+    "화학 반응의 세계",
+    "세포와 물질대사",
+    "생물의 유전",
+    "지구시스템과학",
+    "행성우주과학"
+  ]
+};
+
+function familyOf(subjectName){
+  for(const [family,subjects] of Object.entries(SUBJECT_FAMILY)){
+    if(subjects.includes(subjectName)){
+      return family;
+    }
+  }
+
+  return null;
+}
+
+function getFamilyHistory(family){
+  return getAllSubjects()
+    .filter(subject =>
+      familyOf(subject.name) === family
+    )
+    .sort((a,b) =>
+      semesterIndex(a.semesterId) -
+      semesterIndex(b.semesterId)
+    );
+}
+
+function semesterIndex(id){
+  return SEMESTERS.findIndex(
+    s => s.id === id
+  );
+}
+
+function predict(history){
+  if(!history.length) return null;
+
+  if(history.length === 1){
+    return {
+      low:Math.max(1,history[0].rank - .5),
+      high:Math.min(5,history[0].rank + .5),
+      center:history[0].rank
+    };
+  }
+
+  let weightedScore = 0;
+  let totalWeight = 0;
+
+  history.forEach((item,index) => {
+    const weight = index + 1;
+
+    weightedScore +=
+      item.rank * weight;
+
+    totalWeight += weight;
+  });
+
+  const weighted =
+    weightedScore / totalWeight;
+
+  const last =
+    history[history.length - 1].rank;
+
+  const previous =
+    history[history.length - 2].rank;
+
+  const change =
+    last - previous;
+
+  let center =
+    weighted + change * .35;
+
+  center =
+    Math.max(1,Math.min(5,center));
+
+  return {
+    low:Math.max(1,center - .35),
+    high:Math.min(5,center + .35),
+    center
+  };
+}
+
+function trend(history){
+  if(history.length < 2){
+    return "stable";
+  }
+
+  const first =
+    history[0].rank;
+
+  const last =
+    history[history.length - 1].rank;
+
+  if(last < first) return "up";
+  if(last > first) return "down";
+
+  const previous =
+    history[history.length - 2].rank;
+
+  if(last < previous) return "up";
+  if(last > previous) return "down";
+
+  return "stable";
+}
+
+function trendBadge(type){
+  if(type === "up"){
+    return `<span class="badge badge-up">상승</span>`;
+  }
+
+  if(type === "down"){
+    return `<span class="badge badge-down">하락</span>`;
+  }
+
+  return `<span class="badge badge-stable">유지</span>`;
+}
+
+function updateAll(){
+  const g1 = gradeAverage(1);
+  const g2 = gradeAverage(2);
+  const g3 = gradeAverage(3);
+  const overall = overallAverage();
+
+  el("grade1Average").textContent =
+    g1 === null ? "-" : g1.toFixed(2);
+
+  el("grade2Average").textContent =
+    g2 === null ? "-" : g2.toFixed(2);
+
+  el("grade3Average").textContent =
+    g3 === null ? "-" : g3.toFixed(2);
+
+  el("overallAverage").textContent =
+    overall === null
+      ? "-"
+      : overall.average.toFixed(2);
+
+  updateTrend();
+  updateAnalysis();
+  updateFeedback();
+}
+
+function updateTrend(){
+  const list = getSemesterAverages();
+  const container = el("overallTrend");
+
+  if(!list.length){
+    container.innerHTML = `
+      <div class="empty">
+        성적을 입력하면 실시간으로 표시됩니다.
+      </div>
+    `;
+    return;
+  }
+
+  const first = list[0].average;
+  const last = list[list.length - 1].average;
+  const change = first - last;
+
+  let text = "현재 성적 흐름을 분석 중입니다.";
+  let width = 50;
+
+  if(change > .05){
+    text =
+      `첫 입력 학기 ${first.toFixed(2)}등급에서
+       현재 ${last.toFixed(2)}등급으로
+       ${change.toFixed(2)}등급 좋아졌습니다.`;
+    width = 70;
+  }else if(change < -.05){
+    text =
+      `첫 입력 학기 ${first.toFixed(2)}등급에서
+       현재 ${last.toFixed(2)}등급으로
+       ${Math.abs(change).toFixed(2)}등급 낮아졌습니다.`;
+    width = 35;
+  }else{
+    text =
+      `현재까지 종합적인 성적 흐름은
+       ${last.toFixed(2)}등급 부근에서 안정적입니다.`;
+    width = 50;
+  }
+
+  const points = list.map(s =>
+    `${s.title.replace("고등학교 ","")} ${s.average.toFixed(2)}`
+  );
+
+  container.innerHTML = `
+    <div class="trend-box">
+      <div class="trend-title">${text}</div>
+
+      <div class="trend-line">
+        <div class="trend-fill" style="width:${width}%"></div>
+      </div>
+
+      <div class="trend-meta">
+        <span>${points.join(" · ")}</span>
+        <span>현재 ${last.toFixed(2)}등급</span>
+      </div>
+    </div>
+  `;
+}
+
+function updateAnalysis(){
+  const container = el("subjectAnalysis");
+  const subjects = getAllSubjects();
+
+  if(!subjects.length){
+    container.innerHTML = `
+      <div class="empty">
+        성적을 입력하면 계열별 예측이 표시됩니다.
+      </div>
+    `;
+    return;
+  }
+
+  const families = {};
+
+  Object.keys(SUBJECT_FAMILY).forEach(family => {
+    const history = getFamilyHistory(family);
+
+    if(history.length){
+      families[family] = history;
+    }
+  });
+
+  const html = Object.entries(families).map(
+    ([family,history]) => {
+
+      const latest =
+        history[history.length - 1];
+
+      const prediction =
+        predict(history);
+
+      const direction =
+        trend(history);
+
+      const recentHistory =
+        history.slice(-5);
+
+      const historyHTML =
+        recentHistory.map((item,index) => `
+          <div class="history-item">
+            <div>
+              <div class="history-grade">
+                ${item.rank}
+              </div>
+              <div class="history-term">
+                ${item.grade}학년
+              </div>
+            </div>
+
+            ${
+              index < recentHistory.length - 1
+                ? `<span class="history-arrow">→</span>`
+                : ""
+            }
+          </div>
+        `).join("");
+
+      const nextName =
+        getNextRelatedSubject(
+          family,
+          latest.name
+        );
+
+      const nextText =
+        nextName
+          ? `${nextName} 등 다음 ${family} 계열 과목`
+          : `${family} 계열 다음 과목`;
+
+      const impact =
+        calculateImpact(latest);
+
+      return `
+        <div class="analysis-card">
+
+          <div class="analysis-top">
+
+            <div>
+              <div class="analysis-name">
+                ${family} 계열
+              </div>
+
+              <div class="analysis-category">
+                최근 과목 · ${esc(latest.name)}
+              </div>
+            </div>
+
+            ${trendBadge(direction)}
+
+          </div>
+
+          <div class="history">
+            ${historyHTML}
+          </div>
+
+          <div class="prediction-box">
+
+            최근 성적:
+            <strong>${latest.rank}등급</strong>
+
+            <br>
+
+            ${esc(nextText)} 예상:
+            <strong>
+              ${prediction.low.toFixed(1)}
+              ~
+              ${prediction.high.toFixed(1)}등급
+            </strong>
+
+            <br>
+
+            예측 중심값:
+            <strong>
+              ${prediction.center.toFixed(1)}등급
+            </strong>
+
+          </div>
+
+          <div class="impact">
+            <span>
+              최근 학점 ${latest.credit}학점
+            </span>
+
+            <span>
+              개선 효과 예상
+              <strong>
+                ${impact}
+              </strong>
+            </span>
+          </div>
+
+        </div>
+      `;
+    }
+  ).join("");
+
+  container.innerHTML =
+    `<div class="analysis-grid">${html}</div>`;
+}
+
+function getNextRelatedSubject(family,current){
+  const subjects =
+    SUBJECT_FAMILY[family] || [];
+
+  const index =
+    subjects.indexOf(current);
+
+  if(index < 0) return "";
+
+  for(let i=index+1;i<subjects.length;i++){
+    const candidate = subjects[i];
+
+    if(
+      !getAllSubjects().some(
+        s => s.name === candidate
+      )
+    ){
+      return candidate;
+    }
+  }
+
+  return "";
+}
+
+function calculateImpact(subject){
+  const overall = overallAverage();
+
+  if(!overall || !subject.credit){
+    return "-";
+  }
+
+  const improvement = 1;
+
+  const currentContribution =
+    subject.credit *
+    subject.rank;
+
+  const improvedContribution =
+    subject.credit *
+    Math.max(1,subject.rank - improvement);
+
+  const difference =
+    currentContribution -
+    improvedContribution;
+
+  const estimated =
+    difference /
+    overall.credits;
+
+  if(estimated <= 0){
+    return "미미";
+  }
+
+  return `약 ${estimated.toFixed(2)}↓`;
+}
+
+function updateFeedback(){
+  const container = el("feedback");
+  const all = getAllSubjects();
+  const overall = overallAverage();
+
+  if(!all.length || !overall){
+    container.innerHTML = `
+      <div class="empty">
+        성적을 입력하면 현재 성적을 기준으로 피드백합니다.
+      </div>
+    `;
+    return;
+  }
+
+  const sorted = [...all].sort(
+    (a,b) => b.rank - a.rank
+  );
+
+  const lowest = sorted[0];
+
+  const sameSubject =
+    all
+      .filter(s => s.name === lowest.name)
+      .sort(
+        (a,b) =>
+          semesterIndex(a.semesterId) -
+          semesterIndex(b.semesterId)
+      );
+
+  const prediction =
+    predict(
+      getFamilyHistory(
+        familyOf(lowest.name)
+      )
+    );
+
+  let changeText =
+    "현재 입력된 성적이 기준입니다.";
+
+  if(sameSubject.length >= 2){
+    const previous =
+      sameSubject[sameSubject.length - 2].rank;
+
+    const current =
+      sameSubject[sameSubject.length - 1].rank;
+
+    const difference =
+      previous - current;
+
+    if(difference > 0){
+      changeText =
+        `${previous}등급에서 ${current}등급으로
+         ${difference.toFixed(0)}등급 좋아졌습니다.`;
+    }else if(difference < 0){
+      changeText =
+        `${previous}등급에서 ${current}등급으로
+         ${Math.abs(difference).toFixed(0)}등급 낮아졌습니다.`;
+    }else{
+      changeText =
+        `최근 두 번의 성적이 ${current}등급으로 같습니다.`;
+    }
+  }
+
+  const target =
+    Number(el("targetGrade").value);
+
+  let targetText = "";
+
+  if(target >= 1 && target <= 5){
+
+    if(overall.average <= target){
+      targetText =
+        `현재 종합 ${overall.average.toFixed(2)}등급으로
+         목표 ${target.toFixed(2)}등급에 도달해 있습니다.`;
+    }else{
+      targetText =
+        `현재 종합 ${overall.average.toFixed(2)}등급에서
+         목표 ${target.toFixed(2)}등급까지
+         ${(
+           overall.average - target
+         ).toFixed(2)}등급을 낮춰야 합니다.`;
+    }
+  }
+
+  const scenarios =
+    createScenarios(lowest);
+
+  container.innerHTML = `
+    <div class="feedback">
+
+      <div class="feedback-title">
+        현재 가장 낮은 성적
+      </div>
+
+      <div class="feedback-main">
+
+        현재 가장 낮은 등급은
+        <span class="feedback-highlight">
+          ${esc(lowest.name)} · ${lowest.rank}등급
+        </span>
+        입니다.
+
+        <br>
+
+        ${changeText}
+
+        ${
+          prediction
+            ? `
+              <br>
+              같은 ${esc(familyOf(lowest.name) || "")} 계열의
+              이전 성적 흐름을 기준으로 보면,
+              다음 관련 과목은
+              <span class="feedback-highlight">
+                ${prediction.low.toFixed(1)}
+                ~
+                ${prediction.high.toFixed(1)}등급
+              </span>
+              정도로 예상됩니다.
+            `
+            : ""
+        }
+
+        ${
+          targetText
+            ? `<br><br>${targetText}`
+            : ""
+        }
+
+      </div>
+
+      <div class="scenario-grid">
+
+        ${scenarios.map(s => `
+          <div class="scenario">
+
+            <div class="scenario-title">
+              ${s.title}
+            </div>
+
+            <div class="scenario-value">
+              ${s.average.toFixed(2)}등급
+            </div>
+
+            <div class="scenario-change">
+              ${s.change}
+            </div>
+
+          </div>
+        `).join("")}
+
+      </div>
+
+    </div>
+  `;
+}
+
+function createScenarios(subject){
+  const overall = overallAverage();
+
+  if(!overall){
+    return [];
+  }
+
+  const current = overall.average;
+  const credit = Number(subject.credit);
+  const rank = Number(subject.rank);
+
+  const make = (newRank,title) => {
+
+    const oldScore =
+      credit * rank;
+
+    const newScore =
+      credit * newRank;
+
+    const diff =
+      oldScore - newScore;
+
+    const newAverage =
+      (
+        overall.average *
+        overall.credits -
+        diff
+      ) /
+      overall.credits;
+
+    const change =
+      newAverage < current
+        ? `${(
+            current - newAverage
+          ).toFixed(2)}등급 개선`
+        : "현재와 동일";
+
+    return {
+      title,
+      average:newAverage,
+      change
+    };
+  };
+
+  const result = [
+    {
+      title:"현재 유지",
+      average:current,
+      change:"현재 성적 기준"
+    }
+  ];
+
+  if(rank > 1){
+    result.push(
+      make(rank - 1,"1등급 개선")
+    );
+  }
+
+  if(rank > 2){
+    result.push(
+      make(
+        Math.max(1,rank - 2),
+        "2등급 개선"
+      )
+    );
+  }
+
+  while(result.length < 3){
+    result.push({
+      title:"목표 시나리오",
+      average:current,
+      change:"추가 데이터 필요"
+    });
+  }
+
+  return result.slice(0,3);
+}
+
+el("targetGrade").addEventListener(
+  "input",
+  updateAll
+);
+
+el("studentName").addEventListener(
+  "input",
+  updateAll
+);
+
+render();
+updateAll();
+</script>
+
+</body>
+</html>
